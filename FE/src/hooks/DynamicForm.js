@@ -19,6 +19,10 @@ const DynamicForm = ({ labels }) => {
   const [fields, setFields] = useState(labels);
   const classes = useStyles();
 
+  const handleAddField = () => {
+    setFields([...fields, 'New Field']);
+  }
+
   return (
     <>
       <div className={classes.container}>
@@ -29,7 +33,7 @@ const DynamicForm = ({ labels }) => {
           color="secondary"
         />)}
       </div>
-      <Fab color="secondary" aria-label="add">
+      <Fab onClick={handleAddField} color="secondary" aria-label="add">
         <AddIcon />
       </Fab>
     </>
