@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AddIcon from '@material-ui/icons/Add';
 import PropTypes from 'prop-types';
 import Fab from '@material-ui/core/Fab';
@@ -15,34 +15,54 @@ const useStyles = makeStyles({
   },
 });
 
-const DynamicForm = ({ labels }) => {
+const DynamicForm = ({ labels, isExtendedForm }) => {
+  const getFieldsElement = (_fields) => {
+    return _fields.map((field) => (
+      <TextField
+        id={field}
+        label={field}
+        variant="outlined"
+        color="secondary"
+      />
+    ));
+  };
+  const [key, setKey] = useState('');
   const [fields, setFields] = useState(labels);
+  const [fieldsElement, setFieldsElement] = useState(
+    getFieldsElement(labels)
+  );
   const containerRef = useRef(null);
   const classes = useStyles();
+
+  useEffect(() => {
+    const root = document.getElementById('root');
+    root.addEventListener('keyup', (e) => {
+      console.log('e.code', e.code);
+      setKey(e.code);
+    });
+    return () => {
+      root.removeEventListener('keyup', () => {});
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isExtendedForm || fields.length < 3) {
+      setFieldsElement(getFieldsElement(fields));
+    } else {
+      setFieldsElement(getFieldsElement(fields.slice(0, 2)));
+    }
+  }, [isExtendedForm, fields]);
 
   const handleAddField = () => {
     setFields([...fields, 'New Field']);
   };
 
-  const getHeight = () => {
-    if (containerRef && containerRef.current) {
-      return containerRef.current.offsetHeight;
-    }
-  };
-
   return (
     <>
       <div ref={containerRef} className={classes.container}>
-        {fields.map((field) => (
-          <TextField
-            id={field}
-            label={field}
-            variant="outlined"
-            color="secondary"
-          />
-        ))}
+        {fieldsElement}
       </div>
-      <div>{getHeight()}</div>
+      <div>{key}</div>
       <Fab
         onClick={handleAddField}
         color="secondary"
